@@ -4,7 +4,8 @@
   "description": "Report from excel",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "node src/index.js"
   },
   "jest": {
     "testEnvironment": "node"
