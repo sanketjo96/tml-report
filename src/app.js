@@ -1,4 +1,5 @@
 const express = require('express');
+var cors = require('cors');
 var express_graphql = require('express-graphql');
 
 const app = express();
@@ -9,6 +10,8 @@ const defaultroute = require('../routes/default');
 
 const schema = require('../graphql/routes/complaints/schema');
 const complaintresolver = require('../graphql/routes/complaints/resolver');
+
+app.use(cors())
 
 app.use(addfile);
 app.use(qsearch);
