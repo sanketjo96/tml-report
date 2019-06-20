@@ -20,6 +20,7 @@ router.get('/addfile', async (req, res) => {
     let responseData = new ResponseData();
     try {
         const message = await readReportFile();
+        console.log();
         responseData.setData([], message);
     } catch(e) {
         responseData.setData(e);

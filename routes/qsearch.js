@@ -5,8 +5,8 @@ var _ = require('lodash');
 const router = new express.Router();
 
 const searchmap = {
-    cdesc: 'Complaint Code Description',
-    ccode: 'Complaint Code'
+    cdesc: 'Complaint_Code_Description',
+    ccode: 'Complaint_Code'
 };
 const searchOn = Object.keys(searchmap);
 
