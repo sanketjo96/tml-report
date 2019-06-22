@@ -1,6 +1,6 @@
 const express = require('express');
-const common = require('../src/common');
-const ResponseData = require('../modals/response');
+const common = require('../../common');
+const ResponseData = require('../../modals/response');
 const router = new express.Router();
 
 router.get('/getallcomplaints', function (req, res) {

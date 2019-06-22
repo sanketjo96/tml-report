@@ -3,13 +3,13 @@ var cors = require('cors');
 var express_graphql = require('express-graphql');
 
 const app = express();
-const addfile = require('../routes/fileupload');
-const complaints = require('../routes/complaints');
-const qsearch = require('../routes/qsearch');
-const defaultroute = require('../routes/default');
+const addfile = require('./rest/routes/fileupload');
+const complaints = require('./rest/routes/complaints');
+const qsearch = require('./rest/routes/qsearch');
+const defaultroute = require('./rest/routes/default');
 
-const schema = require('../graphql/routes/complaints/schema');
-const complaintresolver = require('../graphql/routes/complaints/resolver');
+const schema = require('./graphql/routes/complaints/schema');
+const complaintresolver = require('./graphql/routes/complaints/resolver');
 
 app.use(cors())
 

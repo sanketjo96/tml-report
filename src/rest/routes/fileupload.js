@@ -1,7 +1,6 @@
 const express = require('express');
-const readReportFile = require('../src/common').readReportFile;
-const dataSet = require('../src/common').dataSet;
-const ResponseData = require('../modals/response');
+const { readReportFile, dataSet } = require('../../common');
+const ResponseData = require('../../modals/response');
 const router = new express.Router();
 
 router.get('/checkfile', async (req, res) => {

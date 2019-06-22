@@ -1,4 +1,4 @@
-const common = require('../../../src/common');
+const common = require('../../../common');
 var _ = require('lodash');
 
 const getallcomplaints = function(args) {
