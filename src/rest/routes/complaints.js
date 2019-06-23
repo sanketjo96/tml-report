@@ -18,7 +18,8 @@ router.get('/getcomplaints/:ccode', async function (req, res) {
         req.params.ccode,
         req.query.models,
         req.query.from,
-        req.query.to
+        req.query.to,
+        req.query.mis
     );
     responseData.setData(data);
     res.send(responseData);

@@ -22,7 +22,8 @@ const getComplaintSlice = (limit = 30, skip = 0) => {
  * @param {*} fromDate - start date from which we want list of compalints 
  * @param {*} toDate - end date till which we want list of compalints 
  */
-const filterComplaints = (ccode, models, fromDate, toDate) => {
+const filterComplaints = (ccode, models, fromDate, toDate, mis) => {
+    const misdata = mis ? parseInt(mis, 10) : null;
     const from = fromDate ? Date.parse(fromDate) : null;
     const to = toDate ? Date.parse(toDate) : null;
     const interestedModels = models ? models.split(',').map(String) : null;
@@ -31,6 +32,14 @@ const filterComplaints = (ccode, models, fromDate, toDate) => {
         query.find({
             Model: {
                 "$in": interestedModels
+            }
+        });
+    }
+
+    if (misdata) {
+        query.find({
+            Diff_between_Complaint_Sales_Month: {
+                "$lte": misdata
             }
         });
     }

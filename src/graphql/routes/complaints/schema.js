@@ -3,7 +3,7 @@ var { buildSchema } = require('graphql');
 var schema = buildSchema(`
     type Query {
         complaints(limit: Int = 30, skip: Int = 0): [Complaint],
-        filtercomplaints(ccode: String!, models: String, from: String, to: String): [Complaint]
+        filtercomplaints(ccode: String!, models: String, from: String, to: String, mis: Int): [Complaint]
     },
     type Complaint {
         _id: String,

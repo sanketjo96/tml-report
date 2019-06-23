@@ -2,6 +2,7 @@ const mangoose = require('mongoose');
 const Schema = mangoose.Schema;
 
 const toTimeStamp = (date) => Date.parse(date); 
+const toNumber = (data) => parseInt(data, 10); 
 
 var complaintSchema = new Schema({
     __v: { 
@@ -67,7 +68,8 @@ var complaintSchema = new Schema({
         type: String
     },
     Diff_between_Complaint_Sales_Month: {
-        type: String
+        type: Number,
+        set: toNumber
     },
     Claim_Category: {
         type: String

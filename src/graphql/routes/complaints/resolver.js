@@ -10,7 +10,7 @@ const getallcomplaints = function(args) {
 }
 
 const filtercomplaints = function(args) {
-    return common.filterComplaints(args.ccode, args.models, args.from, args.to)
+    return common.filterComplaints(args.ccode, args.models, args.from, args.to, args.mis)
 }
 
 module.exports = {
