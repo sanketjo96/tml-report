@@ -6,6 +6,7 @@ var schema = buildSchema(`
         filtercomplaints(ccode: String!, models: String, from: String, to: String): [Complaint]
     },
     type Complaint {
+        _id: String,
         Dealer_Code: String,
         Dealer_Code_Description: String,
         Dealer_City: String,
@@ -29,8 +30,6 @@ var schema = buildSchema(`
         Complaint_Month: String,
         Complaint_Reported_Date: String,
         Diff_between_Complaint_Sales_Month: String,
-        Settlement_Month: String,
-        Settlement_Date: String,
         Claim_Category: String,
         Claim_Category_Description: String,
         Claims_Indicator: String,

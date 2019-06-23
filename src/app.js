@@ -1,6 +1,7 @@
 const express = require('express');
-var cors = require('cors');
-var express_graphql = require('express-graphql');
+require('./db/mongo');
+const cors = require('cors');
+const express_graphql = require('express-graphql');
 
 const app = express();
 const addfile = require('./rest/routes/fileupload');

@@ -1,26 +1,24 @@
 const express = require('express');
-const common = require('../../common');
 const ResponseData = require('../../modals/response');
+const complaints = require('../../db/schema/complaint');
 var _ = require('lodash');
 const router = new express.Router();
 
 const searchmap = {
-    cdesc: 'Complaint_Code_Description',
-    ccode: 'Complaint_Code'
+    cdesc: 'Complaint_Group_Description',
+    ccode: 'Complaint_Group'
 };
 const searchOn = Object.keys(searchmap);
 
-router.get('/getModels', function (req, res) {
-    const result = _.map(_.uniqBy(common.dataSet, 'Model'), (data) => {
-        return data['Model'];
-    });
+router.get('/getModels', async function (req, res) {
+    const query = complaints.find({}).select('Model -_id').distinct('Model');
+    const result = await query.exec();
     let responseData = new ResponseData();
     responseData.setData(result.sort());
     res.send(responseData);
-
 });
 
-router.get('/qsearch', function (req, res) {
+router.get('/qsearch', async function (req, res) {
     let q;
     let qval;
     let responseData = new ResponseData();
@@ -35,17 +33,17 @@ router.get('/qsearch', function (req, res) {
         }
 
         if (q && qval) {
-            const results = _.unionBy(common.dataSet.reduce((acc, data) => {
-                const value = data[q].toLowerCase();
-                if (value.indexOf(qval.toLowerCase()) > -1) {
-                    acc.push({
-                       ccode: data[searchmap['ccode']],
-                       cdesc: data[searchmap['cdesc']]
-                    });
-                }
-                return acc;
-            }, []), 'ccode');
-            responseData.setData(results);
+            let selector = {};
+            if (process.env.TESTENV) {
+                selector['_id'] = 0;
+            }
+            const pattern = new RegExp(qval, "gi");
+            const obj = {[q]: pattern};
+            const query = complaints
+                .find(obj, selector)
+                .select('Complaint_Group Complaint_Group_Description');
+            const results = await query.exec();
+            responseData.setData(_.uniqBy(results, 'Complaint_Group'));
         } else {
             responseData.addErrors('Unknown Search criteria');
         }

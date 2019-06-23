@@ -1,17 +1,9 @@
 {
-    "items": 3,
+    "items": 1,
     "data": [
         {
-            "ccode": "KD43312",
-            "cdesc": "AIR LEAK FROM RR AIR BRK CHAMBER/ACTUATOR"
-        },
-        {
-            "ccode": "KD43322",
-            "cdesc": "APU DEFECTIVE"
-        },
-        {
-            "ccode": "KD43302",
-            "cdesc": "AIR LEAK FROM FRONT AIR BRAKE CHAMBER"
+            "Complaint_Group": "FA32012",
+            "Complaint_Group_Description": "SPRING LEAF BROKEN - REAR"
         }
     ],
     "error": []
