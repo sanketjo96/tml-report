@@ -47,6 +47,7 @@ const readFileLine = function (file, line_no) {
  * @param {*} filePath - file path to read
  */
 const readReportFile = async (filePath) => {
+    let saveCount = 0;
     const path = filePath ? filePath : MOCKFILE;
     const headerData = await readFileLine(MOCKFILE, 0);
     const cols = headerData.replace(/\s/g, "_")
@@ -112,6 +113,7 @@ const readReportFile = async (filePath) => {
                     Action_Taken: json.Action_Taken,
                 });
                 complaint.save((err) => {
+                    console.log(++saveCount);
                     if (err) {
                         console.log(err);
                     }
