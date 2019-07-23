@@ -45,11 +45,11 @@ const filterComplaints = (ccode, models, fromDate, toDate, mis) => {
     }
 
     if (from && to) {
-        query.find({ 
-            Complaint_Month: { 
+        query.find({
+            Complaint_Month: {
                 "$gte": from,
-                "$lte": to 
-            } 
+                "$lte": to
+            }
         });
     }
 

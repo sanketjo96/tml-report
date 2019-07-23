@@ -8,12 +8,15 @@ const addfile = require('./rest/routes/fileupload');
 const complaints = require('./rest/routes/complaints');
 const qsearch = require('./rest/routes/qsearch');
 const defaultroute = require('./rest/routes/default');
-
+const login = require('./rest/routes/user')
 const schema = require('./graphql/routes/complaints/schema');
 const complaintresolver = require('./graphql/routes/complaints/resolver');
+var bodyParser = require('body-parser')
 
 app.use(cors())
+app.use(bodyParser.json())
 
+app.use(login);
 app.use(addfile);
 app.use(qsearch);
 app.use(complaints);

@@ -6,8 +6,8 @@
   "scripts": {
     "test": "env-cmd -f ./config/test.env jest",
     "start": "node src/index.js",
-    "dev": "env-cmd -f ./config/prod.env node src/index.js",
-    "import": "env-cmd -f ./config/prod.env node src/do-import.js"
+    "dev": "env-cmd -f ./config/dev.env node src/index.js",
+    "import": "env-cmd -f ./config/dev.env node src/do-import.js"
   },
   "jest": {
     "testEnvironment": "node"
@@ -15,11 +15,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "csvtojson": "^2.0.8",
     "express": "^4.17.1",
     "express-graphql": "^0.8.0",
     "graphql": "^14.3.1",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.11",
     "mongodb": "^3.2.7",
     "mongoose": "^5.6.0"

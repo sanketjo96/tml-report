@@ -3,6 +3,7 @@ const ResponseData = require('../../modals/response');
 const complaints = require('../../db/schema/complaint');
 var _ = require('lodash');
 const router = new express.Router();
+const auth = require('../../middleware/auth');
 
 const searchmap = {
     cdesc: 'Complaint_Group_Description',
@@ -10,7 +11,7 @@ const searchmap = {
 };
 const searchOn = Object.keys(searchmap);
 
-router.get('/getModels', async function (req, res) {
+router.get('/getModels', auth, async function (req, res) {
     const query = complaints.find({}).select('Model -_id').distinct('Model');
     const result = await query.exec();
     let responseData = new ResponseData();
@@ -18,7 +19,7 @@ router.get('/getModels', async function (req, res) {
     res.send(responseData);
 });
 
-router.get('/qsearch', async function (req, res) {
+router.get('/qsearch', auth, async function (req, res) {
     let q;
     let qval;
     let responseData = new ResponseData();
