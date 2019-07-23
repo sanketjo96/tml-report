@@ -1,6 +1,7 @@
 const mangoose = require('mongoose');
 const Schema = mangoose.Schema;
 const jwt = require('jsonwebtoken');
+const key = process.env.key;
 
 const userSchema = new Schema({
     email: {
@@ -12,7 +13,7 @@ const userSchema = new Schema({
 });
 
 userSchema.statics.getJWT = (payload) => {
-    return jwt.sign(payload, 'tml-report')
+    return jwt.sign(payload, key)
 };
 
 userSchema.statics.findByEmail = async (email, password) => {

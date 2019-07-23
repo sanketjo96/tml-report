@@ -1,13 +1,14 @@
 const ResponseData = require('../modals/response');
 const User = require('../db/schema/user');
 const jwt = require('jsonwebtoken');
+const key = process.env.key;
 
 const auth = (req, res, next) => {
     let token;
     const responseData = new ResponseData();
     try {
         token = req.headers.authorization.replace('Bearer ', '');
-        let decode = jwt.verify(token, 'tml-report');
+        let decode = jwt.verify(token, key);
         const user = User.findOne({_id: decode.id})
         req.user = user;
         next();
