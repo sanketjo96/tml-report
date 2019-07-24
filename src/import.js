@@ -1,9 +1,11 @@
-const csv = require('csvtojson');
 const fs = require('fs');
 const path = require('path');
+const csv = require('csv-stream')
+const through2 = require('through2')
 const complaints = require('../src/db/schema/complaint');
 const dropCollectionIfExists = require('../src/db/mongo').dropCollectionIfExists;
 const MOCKFILE = path.join(__dirname, process.env.DATAFILEPATH);
+const CHUNK_SIZE = 1000;
 
 /**
  * Reads the given line from file
@@ -47,7 +49,6 @@ const readFileLine = function (file, line_no) {
  * @param {*} filePath - file path to read
  */
 const readReportFile = async (filePath) => {
-    let saveCount = 0;
     const path = filePath ? filePath : MOCKFILE;
     const headerData = await readFileLine(MOCKFILE, 0);
     const cols = headerData.replace(/\s/g, "_")
@@ -58,74 +59,74 @@ const readReportFile = async (filePath) => {
 
     // Drop if complaint collection already present
     try {
-       await dropCollectionIfExists('Complaint');
-    } catch(err) {
+        await dropCollectionIfExists('Complaint');
+    } catch (err) {
         console.log('error is dropping collection')
     }
 
     return new Promise((resolve, reject) => {
-        var inputStream = fs.createReadStream(path, 'utf8');
-        csv({
-            flatKeys: true,
-            noheader: true,
-            headers: cols
-        }).fromStream(inputStream).subscribe((json) => {
-            if (parseInt(json['No_of_Complaints'], 10) > 0) {
-                var complaint = new complaints({
-                    Dealer_Code: json.Dealer_Code,
-                    Dealer_Code_Description: json.Dealer_Code_Description,
-                    Dealer_City: json.Dealer_City,
-                    PCR_Number: json.PCR_Number,
-                    PCR_Year: json.PCR_Year,
-                    VC_Number: json.VC_Number,
-                    VC_Description: json.VC_Description,
-                    Model: json.Model,
-                    Sub_Model: json.Sub_Model,
-                    Chassis_No: json.Chassis_No,
-                    Chassis_Type: json.Chassis_Type,
-                    Production_Month: json.Production_Month,
-                    Kilometers_Covered: json.Kilometers_Covered,
-                    Complaint_Aggregate: json.Complaint_Aggregate,
-                    Complaint_Aggregate_Description: json.Complaint_Aggregate_Description,
-                    Complaint_Group: json.Complaint_Group,
-                    Complaint_Group_Description: json.Complaint_Group_Description,
-                    Complaint_Code: json.Complaint_Code,
-                    Complaint_Code_Description: json.Complaint_Code_Description,
-                    Sale_Month: json.Sale_Month,
-                    Complaint_Month: json.Complaint_Month,
-                    Complaint_Reported_Date: json.Complaint_Reported_Date,
-                    Diff_between_Complaint_Sales_Month: json.Diff_between_Complaint_Sales_Month,
-                    Claim_Category: json.Claim_Category,
-                    Claim_Category_Description: json.Claim_Category_Description,
-                    Claims_Indicator: json.Claims_Indicator,
-                    No_of_Complaints: json.No_of_Complaints,
-                    Part_Number: json.Part_Number,
-                    Part_Description: json.Part_Description,
-                    Part_Quantity: json.Part_Quantity,
-                    Part_Rate: json.Part_Rate,
-                    Actual_Labour_Charge: json.Actual_Labour_Charge,
-                    Miscellaneous_Charge: json.Miscellaneous_Charge,
-                    Special_Labour_Charges: json.Special_Labour_Charges,
-                    Total_Expenses: json.Total_Expenses,
-                    Credit_Amount: json.Credit_Amount,
-                    Customer_Complaint: json.Customer_Complaint,
-                    Investigation: json.Investigation,
-                    Action_Taken: json.Action_Taken,
-                });
-                complaint.save((err) => {
-                    console.log(++saveCount);
-                    if (err) {
-                        console.log(err);
+        let skipFirstRow = true;
+        let totalInsertion = 0;
+        let complaintsDocs = [];
+        fs.createReadStream(path)
+            .pipe(
+                csv.createStream({
+                    endLine: '\n',
+                    columns: cols,
+                    escapeChar: '"',
+                    enclosedChar: '"'
+                }))
+            .pipe(
+                through2({ objectMode: true }, (row, enc, cb) => {
+                    // - `row` holds the first row of the CSV,
+                    //   as: `{ Year: '1997', Make: 'Ford', Model: 'E350' }`
+                    // - The stream won't process the *next* item unless you call the callback
+                    //  `cb` on it.
+                    // - This allows us to save the row in our database/microservice and when
+                    //   we're done, we call `cb()` to move on to the *next* row.
+                    if (skipFirstRow) {
+                        skipFirstRow = false;
+                        cb();
+                    } else if (parseInt(row['No_of_Complaints'], 10) > 0) {
+                        complaintsDocs.push(row);
+                        if (complaintsDocs.length === CHUNK_SIZE) {
+                            complaints.create(complaintsDocs, function (err, documents) {
+                                if (err) {
+                                    throw err;
+                                } else {
+                                    totalInsertion += documents.length;
+                                    console.log(`\nInserted ${documents.length} documents. Total: ${totalInsertion}`)
+                                    complaintsDocs = [];
+                                    cb();
+                                }
+                            });
+                        } else {
+                            cb();
+                        }
+                    } else {
+                        cb();
                     }
-                });
-            }
-        },
-            (err) => {
+                })
+            ).on('data', () => console.log('dara'))
+            .on('end', () => {
+                if (complaintsDocs && complaintsDocs.length) {
+                    complaints.create(complaintsDocs, function (err, documents) {
+                        if (err) {
+                            throw err;
+                        } else {
+                            totalInsertion += documents.length;
+                            console.log(`\nInserted ${documents.length} documents. Total: ${totalInsertion}`)
+                            complaintsDocs = [];
+                            resolve('Data has been fed succesfuly!!');
+                        }
+                    });
+                } else {
+                    resolve('Data has been fed succesfuly!!');
+                }
+            }).on('error', err => {
                 reject(err);
-            },
-            () => {
-                resolve('Data has been fed succesfuly!!');
-            });
+                console.error(err)
+            })
     });
 };
 
