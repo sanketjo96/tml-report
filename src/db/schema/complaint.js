@@ -9,6 +9,10 @@ var complaintSchema = new Schema({
         type: Number, 
         select: false
     },
+    'PCR_Year': {
+        type: Number,
+        set: toNumber
+    },
     Dealer_Code: {
         type: String
     },

@@ -1,4 +1,21 @@
 const complaints = require('../src/db/schema/complaint');
+const misBuckets = [
+    {
+        min: 0,
+        max: 3,
+        label: 3
+    },
+    {
+        min: 4,
+        max: 12,
+        label: 12
+    },
+    {
+        min: 13,
+        max: 24,
+        label: 24
+    }
+]
 
 let selector = {};
 if (process.env.TESTENV) {
@@ -24,8 +41,8 @@ const getComplaintSlice = (limit = 30, skip = 0) => {
  */
 const filterComplaints = (ccode, models, fromDate, toDate, mis) => {
     const misdata = mis ? parseInt(mis, 10) : null;
-    const from = fromDate ? Date.parse(fromDate) : null;
-    const to = toDate ? Date.parse(toDate) : null;
+    const from = fromDate ? parseInt(fromDate, 10) : null;
+    const to = toDate ? parseInt(toDate, 10) : null;
     const interestedModels = models ? models.split(',').map(String) : null;
     const query = complaints.find({ Complaint_Group: ccode }, selector);
     if (interestedModels && interestedModels.length) {
@@ -37,16 +54,18 @@ const filterComplaints = (ccode, models, fromDate, toDate, mis) => {
     }
 
     if (misdata) {
+        const selectedBucket = misBuckets.filter(item => item.label === misdata)[0];
         query.find({
             Diff_between_Complaint_Sales_Month: {
-                "$lte": misdata
+                "$gte": selectedBucket.min,
+                "$lte": selectedBucket.max
             }
         });
     }
 
     if (from && to) {
         query.find({
-            Complaint_Month: {
+            PCR_Year: {
                 "$gte": from,
                 "$lte": to
             }
