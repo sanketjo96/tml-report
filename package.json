@@ -7,7 +7,8 @@
     "test": "env-cmd -f ./config/test.env jest",
     "start": "node src/index.js",
     "dev": "env-cmd -f ./config/dev.env node src/index.js",
-    "import": "env-cmd -f ./config/prod.env node src/do-import.js"
+    "dev-import": "env-cmd -f ./config/dev.env node src/do-import.js",
+    "prod-import": "env-cmd -f ./config/prod.env node src/do-import.js"
   },
   "jest": {
     "testEnvironment": "node"
