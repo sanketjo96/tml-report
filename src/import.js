@@ -6,6 +6,22 @@ const complaints = require('../src/db/schema/complaint');
 const dropCollectionIfExists = require('../src/db/mongo').dropCollectionIfExists;
 const MOCKFILE = path.join(__dirname, process.env.DATAFILEPATH);
 const CHUNK_SIZE = 1000;
+let TOTALREJECTEDCLAIMS = 0
+
+
+/**
+ * 
+ * This script imports SAP sheet to the DB and excludes below records
+ * 1. Records where No. OF Complaints <= 0 (i.e 0 and -1)
+ * 2. Records where total expenses are negative irrespective of what is being set at No. OF Complaints
+ * 
+ * 
+ * NOTE: SAP creates record with No. OF Complaints set to -1 to indicate that claim has been rejected.
+ * It has corresponding entry where No. OF Complaints set to 1 but total expenses are negative. We need to remove
+ * all such couples. #2 takes care of this. 
+ * This programs removes records where No. OF Complaints === 0, but try tp provide sheet without such records
+ * if sheet is huge (i.e. may be more than 1lac records)
+ */
 
 /**
  * Reads the given line from file
@@ -87,7 +103,7 @@ const readReportFile = async (filePath) => {
                     if (skipFirstRow) {
                         skipFirstRow = false;
                         cb();
-                    } else if (parseInt(row['No_of_Complaints'], 10) > 0) {
+                    } else if (parseInt(row['No_of_Complaints'], 10) > 0 && parseInt(row['Total_Expenses'], 10) >= 0) {
                         complaintsDocs.push(row);
                         if (complaintsDocs.length === CHUNK_SIZE) {
                             complaints.create(complaintsDocs, function (err, documents) {
@@ -104,6 +120,7 @@ const readReportFile = async (filePath) => {
                             cb();
                         }
                     } else {
+                        TOTALREJECTEDCLAIMS++;
                         cb();
                     }
                 })
@@ -115,13 +132,13 @@ const readReportFile = async (filePath) => {
                             throw err;
                         } else {
                             totalInsertion += documents.length;
-                            console.log(`\nInserted ${documents.length} documents. Total: ${totalInsertion}`)
+                            console.log(`\nInserted ${documents.length} documents`)
                             complaintsDocs = [];
-                            resolve('Data has been fed succesfuly!!');
+                            resolve(`\nData has been fed successfully!!, Total: ${totalInsertion}. \n${TOTALREJECTEDCLAIMS} are rejected as they are either 0, -1 or with negative expenses`);
                         }
                     });
                 } else {
-                    resolve('Data has been fed succesfuly!!');
+                    resolve('Claims pushed successfully!!');
                 }
             }).on('error', err => {
                 reject(err);
