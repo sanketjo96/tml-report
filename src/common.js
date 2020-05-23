@@ -14,6 +14,11 @@ const misBuckets = [
         min: 13,
         max: 24,
         label: 24
+    },
+    {
+        min: 25,
+        max: 36,
+        label: 36
     }
 ]
 
